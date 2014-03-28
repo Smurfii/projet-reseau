@@ -1,0 +1,61 @@
+
+Tuto Git - stfu © 
+
+Config :
+
+Une fois l'installation de git réalisée, éditer le fichier .gitconfig se trouvant dans votre home :
+il faut impérativement définir le user. Vous n'êtes pas obligés de modifier les alias
+
+ [user] 
+    email = ton_email@blabla.fr
+    name = nom_programmeur 
+
+ [alias] 
+    ci = commit 
+    co = checkout 
+    st = status 
+    br = branch  
+
+Les alias quant à eux permettent de raccourçir les commandes, exemple : git st au lieu de git status 
+
+Clonage :
+
+Pour cloner le dépôt stfu sur votre ordi : git clone https://github.com/Smurfii/stfu
+Le clonage crée un dossier stfu dans lequel il y a tout les fichiers présents dans le dépôt
+
+Transfert de fichiers :
+
+Pour récupérer les fichiers à partir du dépôt :
+git pull  
+
+Pour transférer vos modifications locales sur le dépôt :
+git add nomfichier1 nomfichier2 nomfichier3 ou git add --all
+git commit -m [ton_message]
+git push
+
+Si jamais quelqu'un d'autre était entrain de mofidier un fichier en même temps que vous, et l'a push sur le dépôt avant
+vous, il faut résoudre les problèmes de conflits :
+
+1) télécharger meld
+    fedora : sudo yum install meld
+    ubuntu : sudo apt-get install meld
+2) Lorsque l'erreur de conflit apparait 
+    git merge tool
+3) un éditeur de texte apparait avec les problèmes de conflits
+4) Après résolution des conflits, recommencez les étapes initiales : git add, git commit, git push
+
+
+Si vous avez fait des conneries en modifiant les fichiers et que vous les avez push, vous pouvez annuler le commit :
+git reset HEAD (dernier commit)
+git reset HEAD^ (avant-dernier commit)
+git reset numeroducommit
+
+p.s : quand vous annulez un commit, les modifications sont rétirés du dépôt mais vos fichiers restent modifiés
+      localement.
+      
+Commandes utiles :
+
+git status : affiche les fichiers que vous avez réalisées récemment
+git diff : indique en détail ce que vous avez modifier récémment
+git log : afficher les commits et leurs numéros
+
