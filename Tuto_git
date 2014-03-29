@@ -1,4 +1,3 @@
-
 Tuto Git - stfu © 
 
 Config :
@@ -33,6 +32,8 @@ git add nomfichier1 nomfichier2 nomfichier3 ou git add --all
 git commit -m [ton_message]
 git push
 
+En cas de conflits lors du push :
+
 Si jamais quelqu'un d'autre était entrain de mofidier un fichier en même temps que vous, et l'a push sur le dépôt avant
 vous, il faut résoudre les problèmes de conflits :
 
@@ -40,7 +41,7 @@ vous, il faut résoudre les problèmes de conflits :
     fedora : sudo yum install meld
     ubuntu : sudo apt-get install meld
 2) Lorsque l'erreur de conflit apparait 
-    git merge tool
+    git mergetool
 3) un éditeur de texte apparait avec les problèmes de conflits
 4) Après résolution des conflits, recommencez les étapes initiales : git add, git commit, git push
 
