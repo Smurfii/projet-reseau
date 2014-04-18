@@ -20,6 +20,8 @@ Differente étapes :
        - Gerer les clients.
        
 3 - Synchronisation :
+       - Une sauvegarde et un update sur le serveur à intervalle de temps très petit (0.1 sec)
+       - Un refresh de l'affichage se fait juste après chaque sauvegarde et update.
 
 
 Communication :
