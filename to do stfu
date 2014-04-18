@@ -6,3 +6,13 @@ Trouver un algorithme de partage.
 Regler le cas plusieurs connecté en meme temps et gerer les modifications en 
 parallèle (commit).
 Interface Graphique.
+
+Création du traitement de texte :
+    - fonction pour ecrire
+    - supprimer
+    - permettre l'utilisation des touches du clavier
+    - affichage
+    - créer fichier
+    - ouvrir un fichier
+    - sauvegarder 
+    - fonction pour copier/coller --bonus
