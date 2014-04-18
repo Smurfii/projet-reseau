@@ -5,12 +5,31 @@ DURCHON Hugo
 
 
 
-Choix du Langage C :
+Choix du Langage : C 
+
+
+
+Differente étapes : 
+
+1 - Creer un traitement de texte :
+       - Pouvoir ecrire dans un fichier.
+       - 
+
+2 - Creer un serveur :
+       - Creer le serveur.
+       - Gerer les clients.
+       
+3 - Synchronisation :
+
+
+Communication :
 
 
 
 
 Découpage en module:
+
+
 
 -Partie HALLERMEYER Guillaume:
        
@@ -26,7 +45,7 @@ Découpage en module:
 
 -Partie DURCHON Hugo:
 
-
+       
 
 
 
