@@ -8,20 +8,36 @@ DURCHON Hugo
 Choix du Langage : C 
 
 
+Introduction :
+
+Notre projet est de creer un traitement de texte en ligne synchroniser entre tout les utilisateurs. 
+Langage C.
+
+
+
 
 Differente étapes : 
 
 1 - Creer un traitement de texte :
-       - Pouvoir ecrire dans un fichier.
-       - 
+       - Fonction de base ( creer un fichier, ecrire, supprimer, sauvegarder, ouvrir, etc...).
+       - Synchronisation clavier.
+       - Affichage.
+
 
 2 - Creer un serveur :
        - Creer le serveur.
        - Gerer les clients.
+       - Accessibilité, des client.
        
 3 - Synchronisation :
        - Une sauvegarde et un update sur le serveur à intervalle de temps très petit (0.1 sec)
        - Un refresh de l'affichage se fait juste après chaque sauvegarde et update.
+       - 
+       
+4 - Stockage des documents :
+       - 
+       
+5 - Synchronisation des différentes parties et la gestion de conflicts. 
 
 
 Communication :
@@ -34,18 +50,24 @@ Découpage en module:
 
 
 -Partie HALLERMEYER Guillaume:
+       Serveur.
        
 
 
 -Partie PARIS Edouard:
+       Affichage.
        
 
 
 -Partie BOUVATTIER Foucauld:
+       Creation traitement de texte.
 
 
 
 -Partie DURCHON Hugo:
+       Communication
+       
+
 
        
 
