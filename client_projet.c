@@ -9,8 +9,33 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <string.h>
 
 #define BUF_LEN 256			
+
+
+int lire(char *chaine, int longueur)
+{	
+	/*Initialisation de la position d'entrée */
+    char *positionEntree = NULL;
+  
+    /* On lit le texte saisi au clavier */
+    if (fgets(chaine, longueur, stdin) != NULL) { /* Si la saisie se fait sans erreur : */
+        
+        positionEntree = strchr(chaine, '\n'); /* On recherche l'Entrée" */
+        
+        if (positionEntree != NULL) { /* Si on a trouvé le retour à la ligne */
+      
+            *positionEntree = '\0'; /* On remplace ce caractère par \0 */
+        }
+
+        return 0; /* On renvoie 0 si la fonction s'est déroulée sans erreur */
+    }
+
+    else {
+        return 1; /* On renvoie 1 si la fonction s'est mal déroulée */ 
+    }
+}
 
 int main(int argc, char ** argv){
 
@@ -65,12 +90,17 @@ for(i = 0; i < BUF_LEN; i++)
 	buffer[i] = '\0';
 }
 
-scanf("%s", buffer);
+/* On lis le message entrée par le client sur la console */
+if(lire(buffer,BUF_LEN) == 1) {
+	perror("Erreur lors de la lecture du message envoyée par le client");
+	exit(1);
+}
+
+/* On envoie le message qui a été écrit par le client */
 write(sock, buffer, BUF_LEN);
 
 
-/*
-f = open(nom_fichier, O_RDONLY);
+/*f = open(nom_fichier, O_RDONLY);
 
 while((ret = read(f, buffer, sizeof buffer)) > 0){
 	if(write(sock, buffer, ret) < 1)
@@ -78,8 +108,7 @@ while((ret = read(f, buffer, sizeof buffer)) > 0){
 		perror("Erreur d'envoi au serveur");
 		exit(1);
 	}
-}
-*/
+}*/
 
 close(sock);
 
