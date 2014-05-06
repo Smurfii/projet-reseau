@@ -9,64 +9,36 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
-#include <string.h>
 
-#define BUF_LEN 256			
-
-
-int lire(char *chaine, int longueur)
-{	
-	/*Initialisation de la position d'entrée */
-    char *positionEntree = NULL;
-  
-    /* On lit le texte saisi au clavier */
-    if (fgets(chaine, longueur, stdin) != NULL) { /* Si la saisie se fait sans erreur : */
-        
-        positionEntree = strchr(chaine, '\n'); /* On recherche l'Entrée" */
-        
-        if (positionEntree != NULL) { /* Si on a trouvé le retour à la ligne */
-      
-            *positionEntree = '\0'; /* On remplace ce caractère par \0 */
-        }
-
-        return 0; /* On renvoie 0 si la fonction s'est déroulée sans erreur */
-    }
-
-    else {
-        return 1; /* On renvoie 1 si la fonction s'est mal déroulée */ 
-    }
-}
+#define BUF_LEN 65536			
+#define MAX_PEOPLE_WAIT 3
 
 int main(int argc, char ** argv){
 
-/* Arguments */
-char * ip_serveur, * nom_fichier;
+/* arguments */
 int port;
 
-/* Variables pour la création de la socket TCP */
-
-int sock;
+/* Déclaration des variables pour créer la socket */
+int sock, socket_dialogue;
 struct sockaddr_in serveur, client;
 socklen_t serveur_len, client_len;
 
 /*Variables de stockage et autre */
 char buffer[BUF_LEN];
-int ret, f, i;
+int ret = 0 , f = 0;
 
 /*Valeurs par défaut des tailles des clients */
 serveur_len = sizeof(serveur);
 client_len = sizeof(client);
 
 /* Vérification du nombre d'arguments */
-	if (argc != 4) {
-		fprintf(stderr, "Usage: %s ip_serveur, nom_fichier, port\n", argv[0]);
+	if (argc != 2) {
+		fprintf(stderr, "Usage: %s port\n", argv[0]);
 		exit(1);
 	}
 
-/* Stockage et conversion des arguments */
-ip_serveur = argv[1];
-port = atoi(argv[2]);
-nom_fichier = argv[3];
+/* Stockage des arguments dans des variables sous la bonne forme */
+port = atoi(argv[1]);
 
 /* Création de la socket TCP */
 if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -77,40 +49,44 @@ if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 /* Structure pour le bind */
 serveur.sin_family = AF_INET;
 serveur.sin_port = htons(port);
-serveur.sin_addr.s_addr = inet_addr(ip_serveur);
+serveur.sin_addr.s_addr = INADDR_ANY;
 
-if (connect(sock, (struct sockaddr *) &serveur, serveur_len) < 0) {
-	perror("Erreur de connection au serveur");
+/* Bind de la socket TCP */
+if (bind(sock, (struct sockaddr *)&serveur, serveur_len) < 0) {
+	perror("Erreur lors du bind de la socket TCP\n");
 	exit(1);
 }
 
-/* Initialisation du buffer */
-for(i = 0; i < BUF_LEN; i++)
-{
-	buffer[i] = '\0';
-}
-
-/* On lis le message entrée par le client sur la console */
-if(lire(buffer,BUF_LEN) == 1) {
-	perror("Erreur lors de la lecture du message envoyée par le client");
+/* Mise sur écoute du serveur */
+if (listen(sock, MAX_PEOPLE_WAIT) == -1) {
+	perror("Erreur listen");
 	exit(1);
 }
 
-/* On envoie le message qui a été écrit par le client */
-write(sock, buffer, BUF_LEN);
+/* Accepte une connexion client et stock le client accepté dans client*/
+if ((socket_dialogue = accept(sock, (struct sockaddr *) &client, &client_len)) < 0) {
+	perror("Erreur accept");
+	exit(1);
+}
 
+while ((ret = read(socket_dialogue, buffer, sizeof buffer)) > 0) {
 
-/*f = open(nom_fichier, O_RDONLY);
-
-while((ret = read(f, buffer, sizeof buffer)) > 0){
-	if(write(sock, buffer, ret) < 1)
-	{
-		perror("Erreur d'envoi au serveur");
+	/* écriture de ce que l'on vient de recevoir dans le fichier f */
+	if (write(f, buffer, ret) < 1) {
+		perror("Erreur d'écriture");
 		exit(1);
 	}
-}*/
 
-close(sock);
+	/* Pas obligatoire, surtout utile pour du débogage */
+	if (ret == -1) {
+		perror("Erreur read");
+	}
+}
+
+close(f); 
+close(sock); /* fermeture de la socket */
 
 return 0;
 }
+
+
