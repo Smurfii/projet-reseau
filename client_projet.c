@@ -11,7 +11,6 @@
 #include <errno.h>
 
 #define BUF_LEN 256			
-#define MAX_PEOPLE_WAIT 3
 
 int main(int argc, char ** argv){
 
@@ -27,7 +26,6 @@ socklen_t serveur_len, client_len;
 
 /*Variables de stockage et autre */
 char buffer[BUF_LEN];
-char * c;
 int ret, f, i;
 
 /*Valeurs par défaut des tailles des clients */
@@ -61,17 +59,11 @@ if (connect(sock, (struct sockaddr *) &serveur, serveur_len) < 0) {
 	exit(1);
 }
 
+/* Initialisation du buffer */
 for(i = 0; i < BUF_LEN; i++)
 {
 	buffer[i] = '\0';
 }
-
-/*for (i = 0; i < BUF_LEN; i++)
-{
-	scanf("%c",buffer[i]);
-	write(sock,buffer, BUF_LEN);
-}*/
-
 
 scanf("%s", buffer);
 write(sock, buffer, BUF_LEN);
@@ -89,7 +81,6 @@ while((ret = read(f, buffer, sizeof buffer)) > 0){
 }
 */
 
-sleep(50);
 close(sock);
 
 return 0;
