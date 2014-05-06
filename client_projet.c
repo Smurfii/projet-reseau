@@ -73,9 +73,9 @@ for(i = 0; i < BUF_LEN; i++)
 }*/
 
 
-while(c = scanf("%s", buffer)) {
-	write(sock, buffer, BUF_LEN);
-}
+scanf("%s", buffer);
+write(sock, buffer, BUF_LEN);
+
 
 /*
 f = open(nom_fichier, O_RDONLY);
@@ -89,6 +89,7 @@ while((ret = read(f, buffer, sizeof buffer)) > 0){
 }
 */
 
+sleep(50);
 close(sock);
 
 return 0;
