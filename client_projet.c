@@ -83,6 +83,8 @@ if (connect(sock, (struct sockaddr *) &serveur, serveur_len) < 0) {
 	exit(1);
 }
 
+printf("Vous êtes connecté");
+
 while(1) {
 
 	/* Initialisation du buffer */
