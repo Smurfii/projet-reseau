@@ -154,7 +154,9 @@ while(1) {
 		buffer = (unsigned char*)calloc(BUF_LEN, sizeof(unsigned char));
 
 		/* Boucle de réception du fichier */
-		do {
+		/*do {*/
+			
+		while(1) {
 			/* On vide le buffer */
 			bzero(buffer, BUF_LEN);
 
@@ -170,8 +172,8 @@ while(1) {
 				close(socket_dialogue);
 				exit(1);
 			}
-
-		} while(ret == BUF_LEN);
+		}		
+		/*} while(ret == BUF_LEN);*/
 
 		close(f); 
 		close(socket_dialogue); 
