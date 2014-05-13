@@ -18,5 +18,11 @@ Le client modifie un fichier :
   _Le client veut modifier le fichier. Il envoit donc sa modification: cela peut être l'ordre de déplacer le curseur, supprimer un caractère ou bien ajouter un caractère. L'ordre est envoyé par le client au serveur qui l'envoit aux autres clients. Avec cette modification le client envoit la position de son pointeur dans le texte.
 
 Le client veut créer un fichier :
-  _Il envoit un ordre de création au serveur qui va créer le fichier vide .txt. Le serveur c
+  _Il envoit un ordre de création au serveur qui va créer le fichier vide .txt. Le client télécharge alors une copie du fichier et on se retrouve alors dans le cas d'utilisation normale.
+
+Le client
+
+****************************************************************************************************************************
+gestion des conflits
+
   
