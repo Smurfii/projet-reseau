@@ -159,7 +159,9 @@ while(1) {
 	}
 
 	buffer[BUF_LEN-1]='\n';	
-
+	
+	afficher(fd);
+	
 	/* On lis le message entrée par le client sur la console */
 	if(lire(buffer,BUF_LEN) == 1) {
 		perror("Erreur lors de la lecture du message envoyée par le client");
