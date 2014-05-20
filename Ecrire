@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#define TAILLE_MAX 80
+
+void decaler(int position_curseur, FILE* fichier){
+	int i=0;
+	fseek(fichier, 0, SEEK_END);
+	int fin=ftell(fichier);
+	fseek(fichier, position_curseur, SEEK_SET);
+	int size = fin - position_curseur;
+	int buf[size];
+	int caractere = 0;
+	while(!feof(fichier))
+	{
+		caractere = fgetc(fichier);
+		buf[i] = caractere;
+		i=i+1;
+	}
+	fseek(fichier, position_curseur, SEEK_SET);
+	fputc('_', fichier);
+	for(i=0; i<size; i=i+1)
+	{
+		fputc(buf[i], fichier);
+	}
+	fseek(fichier, position_curseur, SEEK_SET);
+}
+
+void afficher(FILE* fichier){
+  int position_curseur = ftell(fichier);
+  char chaine[TAILLE_MAX] = "";
+  fseek(fichier, 0, SEEK_SET);
+  if (fichier != NULL)
+    {
+      printf("\n");
+      
+      while (fgets(chaine, TAILLE_MAX, fichier) != NULL) /*On lit maximum TAILLE_MAX caractères du fichier, on stocke le tout dans "chaine"*/
+      {
+      printf("%s", chaine); /*on affiche la chaine*/
+      }
+      printf("\n");
+      
+    }
+    printf("\n");
+    fseek(fichier, position_curseur, SEEK_SET);
+}
+
+void ecrire(char lettre, FILE* fichier, int *position_curseur){
+	decaler(*position_curseur, fichier);
+	fputc(lettre, fichier);
+	*position_curseur = *position_curseur + 1;
+}
+
+int main(int argc, char** argv){
+	int position_curseur=0;
+	FILE* fd = fopen(argv[1], "r+");
+	char lettre;
+	if(argc != 2)
+	{	
+		perror("mauvais nombre d'arguments");
+		return 1;
+	}
+	if(fd==NULL)
+	{
+		perror("fopen_fichier");
+		return 1;
+	}
+	afficher(fd);
+	printf("écrivez votre texte\n");
+	while(lettre!='$')
+	{
+		if(lettre=='$')
+			{return 0;}
+		lettre = getc(stdin);
+		ecrire(lettre, fd, &position_curseur);
+	}
+	return 0;
+}
