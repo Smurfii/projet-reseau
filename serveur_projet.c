@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -13,6 +14,21 @@
 #define BUF_LEN 65536			
 /* Nombre maximale de personnes pouvant se connecter au serveur en même temps */
 #define MAX_PEOPLE_WAIT 5
+
+
+/* 
+	L'utilisation de la fonction waitpid telle que faite au dessus
+	permet de "libérer" les processus fils quand ils sont dans un état zombie
+	l'option WNOHANG rend la fonction non-bloquante s'il n'y a plus de fils à libérer
+	La fonction renvoie le pid du processus libéré, 
+	-1 s'il n'y a aucun processus à libérer ou en cas d'erreur.
+*/
+
+void handler(int sig) {
+
+  while(waitpid(-1, NULL, WNOHANG)>0);
+
+}
 
 int main(int argc, char ** argv){
 
@@ -26,8 +42,9 @@ socklen_t serveur_len, client_len;
 
 /*Variables de stockage et autre */
 unsigned char * buffer;
-int ret, f = 0, h;
-/* char * file_name; */
+int ret, f = 0, h, nboct, fd;
+struct sigaction act;
+char * file_name; 
 
 /*Valeurs par défaut des tailles des clients */
 serveur_len = sizeof(serveur);
@@ -38,6 +55,27 @@ client_len = sizeof(client);
 		fprintf(stderr, "Usage: %s port\n", argv[0]);
 		exit(1);
 	}
+/*
+	Modification du sigaction
+	On remplie la structure "struct sigaction" pour définir la gestion
+	du signal SIGCHLD, envoyé au processus père par le processus fils
+	quand il passe à l'état de zombie.
+	sa_handler : pointeur vers la fonction qui sera executée quand le père
+	recevera un signal SIGCHLD.
+	Le pointeur doit être du type : void function(int)
+	La fonction "sigaction" va lier un signal (ici SIGCHLD) à un traitement
+	sous la forme de la structure struct sigaction (ici act)
+	Le tag SA_RESTART permet de relancer les appels systÃemes interompues par le traitement du signal donnÃ© (ici SIGCHLD)
+	En effet, quand le pere va recevoir un SIGCHLD, il va stoper l'appel 
+	systeme pour lancer la fonction handler. Avec le tag, il relancera
+	automatiquement l'appel systeme.
+*/
+sigemptyset(&act.sa_mask);
+act.sa_flags = SA_RESTART;
+act.sa_handler = handler;
+sigaction(SIGCHLD, &act, NULL);
+
+
 
 /* Stockage des arguments dans des variables sous la bonne forme */
 port = atoi(argv[1]);
@@ -119,7 +157,7 @@ while(1) {
 
       	// Cette première utilisation de recv va nous permettre de récupérer 
       	// la taille du nom du fichier, ensuite nous recevrons le nom
-		/*if(recv(socket_dialogue, &nboct, sizeof(int), 0) == -1){
+		if(recv(socket_dialogue, &nboct, sizeof(int), 0) == -1){
 			perror("Erreur de réception des données provenant du client");
 			close(socket_dialogue);
 			exit(1);
@@ -137,25 +175,21 @@ while(1) {
 		
 		printf("Création du fichier : %s...\n", file_name);
 
-		file_name = calloc()
-
-			fd = open(file_name, O_WRONLY | O_CREAT);
-			if(fd == -1) {
+		fd = open(file_name, O_WRONLY | O_CREAT);
+		if(fd == -1) {
 				perror("Erreur lors de la création du fichier de stockage sur le serveur");
 				close(socket_dialogue);
 				exit(1);
-     	 	}
+     	 }
 
-     	 	printf("Fichier \"%s\" ouvert...\n", file_name);*/
-
+     	 printf("Fichier \"%s\" ouvert...\n", file_name);
 
 
      	/* Création du buffer pour stocker les messages envoyer */ 	
 		buffer = (unsigned char*)calloc(BUF_LEN, sizeof(unsigned char));
 
 		/* Boucle de réception du fichier */
-		/*do {*/
-			
+	
 		while(1) {
 			/* On vide le buffer */
 			bzero(buffer, BUF_LEN);
@@ -172,8 +206,7 @@ while(1) {
 				close(socket_dialogue);
 				exit(1);
 			}
-		}		
-		/*} while(ret == BUF_LEN);*/
+		} 
 
 		close(f); 
 		close(socket_dialogue); 
