@@ -54,15 +54,6 @@ socklen_t serveur_len, client_len;
 char * buffer;
 int x, fd, i, nboct;
 
-/* On ouvre le fichier en lecture seule*/
-fd = open(nom_fichier, O_RDONLY);
-if(fd == -1) {
-    perror("open");
-    exit(1);
-}
-printf("Fichier %s ouvert...\n", nom_fichier);
-
-
 /*Valeurs par défaut des tailles des clients */
 serveur_len = sizeof(serveur);
 client_len = sizeof(client);
@@ -77,6 +68,15 @@ client_len = sizeof(client);
 ip_serveur = argv[1];
 port = atoi(argv[2]);
 nom_fichier = argv[3];
+
+/* On ouvre le fichier en lecture seule*/
+fd = open(nom_fichier, O_RDONLY);
+if(fd == -1) {
+    perror("open");
+    exit(1);
+}
+printf("Fichier %s ouvert...\n", nom_fichier);
+
 
 /* Création de la socket TCP */
 if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
