@@ -75,6 +75,7 @@ int main(int argc, char ** argv){
 
 	/* arguments */
 	int port;	
+	char test;
 
 	/* Déclaration des variables pour les sockets */
 	int sock, socket_dialogue;
@@ -83,7 +84,7 @@ int main(int argc, char ** argv){
 
 	/*Variables de stockage et autre */
 	char * buffer;
-	int ret, h, nboct, position_curseur = 0, i = 0;
+	int ret, h, nboct, i, position_curseur = 0;
 	struct sigaction act;
 	char * nom_fichier; 
 	FILE * fd = NULL;	
@@ -210,6 +211,7 @@ int main(int argc, char ** argv){
 				close(socket_dialogue);
 				exit(1);
 	     	}
+	     	nom_fichier[nboct] = '\0';
 			
 			printf("Création du fichier : %s...\n", nom_fichier);	
 
@@ -221,6 +223,7 @@ int main(int argc, char ** argv){
 	     	 }	
 
 	     	 printf("Fichier \"%s\" ouvert...\n", nom_fichier);
+	     	 fflush(stdout);
 	     	 printf("wat ?");
 
 	     	/* Création du buffer pour stocker les messages envoyer */ 	
@@ -232,18 +235,30 @@ int main(int argc, char ** argv){
 				/* On vide le buffer */
 				bzero(buffer, BUF_LEN);	
 
-				printf("buffer initialisé");
+				printf("buffer initialisé\n");
 				ret = read(socket_dialogue, buffer, BUF_LEN);
 				if(ret == -1) {
 					perror("Erreur lors de la réception des données provenant du client");
 					close(socket_dialogue);
 					exit(1);
 				}
-				printf("message reçu");
-				
-				fgets(buffer, ret, fd);	
-				printf("hey !");			
+				printf("%s\n", buffer);
+				buffer[nboct+2] = '\0';
+				printf("%s\n", buffer);
 
+				/*i = 0;
+				test = 'c';*/
+				/*fputc(test, fd);*/
+				/*fwrite(buffer, BUF_LEN, 1, fd);*/
+				/*printf("%c\n", test);*/
+				/*ecrire(test, fd, &position_curseur);*/
+				while(buffer[i] != '\0') {
+					printf("%c\n", buffer[i]);
+					ecrire(buffer[i], fd, &position_curseur);
+					printf("%c\n", buffer[i]);
+					i = i + 1;
+				}
+				printf("hey ! \n");			
 			} 	
 
 			fclose(fd); 
@@ -252,7 +267,6 @@ int main(int argc, char ** argv){
 			return 0;
 		}	
 	}	
-
 	printf("\n");	
 
 	return 0;
