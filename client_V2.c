@@ -14,43 +14,39 @@
 #define BUF_LEN 65536			
 #define TAILLE_MAX 80
 
-/* affiche */
+/* La fonction permet d'afficher le contenu d'un fichier */
 void afficher(FILE* fichier){
   
+  /*Initialisation des variables et du curseur */
   int position_curseur = ftell(fichier);
   char chaine[TAILLE_MAX] = "";
   
   fseek(fichier, 0, SEEK_SET);
   
   if (fichier != NULL) {
-      /*printf("\n");*/
+      printf("\n");
       
       /*On lit maximum TAILLE_MAX caractères du fichier, on stocke le tout dans "chaine"*/
       while (fgets(chaine, TAILLE_MAX, fichier) != NULL) {
       printf("%s", chaine); /*on affiche la chaine*/
       }
-      /*printf("\n");*/      
+      printf("\n");
     }
-    /*printf("\n");*/
+    printf("\n");
     
     fseek(fichier, position_curseur, SEEK_SET);
 }
 
-/* lit les chaînes insérées dans un terminal */
+/* Lire retourne 0 si elle s'est bien déroulée, 1 sinon
+   Elle lit les caractères entrées par l'utilisateur dans le terminal*/
 int lire(char *chaine, int longueur) {   
+	
 	/*Initialisation de la position d'entrée */
 	char *positionEntree = NULL;
 	
 	/* On lit le texte saisi au clavier */
-	if (fgets(chaine, longueur, stdin) != NULL) { /* Si la saisie se fait sans erreur : */
+	if (fgets(chaine, longueur, stdin) != NULL) { 
 				
-			positionEntree = strchr(chaine, '\n'); /* On recherche l'Entrée" */
-				
-			if (positionEntree != NULL) { /* Si on a trouvé le retour à la ligne */
-			
-					*positionEntree = '\0'; /* On remplace ce caractère par \0 */
-			}
-
 			return 0; /* On renvoie 0 si la fonction s'est déroulée sans erreur */
 	}
 
@@ -69,19 +65,18 @@ int main(int argc, char ** argv){
 	char * nom_fichier; 
 
 	/* Variables pour la création de la socket TCP */ 
-
 	int sock;
 	struct sockaddr_in serveur, client;
-	socklen_t serveur_len, client_len;  
+	socklen_t serveur_len;
 
-	/*Variables de stockage et autre */
+	/*Variables de stockage et autres */
 	char * buffer;
-	int x, i, nboct;
+	int x, nboct = 0;
+	char lettre;
 	FILE * fd = NULL; 
 
-	/*Valeurs par défaut des tailles des clients */
+	/*Valeurs par défaut des tailles des structures*/
 	serveur_len = sizeof(serveur);
-	client_len = sizeof(client);  
 
 	/* Vérification du nombre d'arguments */
 		if (argc != 4) {
@@ -114,6 +109,7 @@ int main(int argc, char ** argv){
 	serveur.sin_port = htons(port);
 	serveur.sin_addr.s_addr = inet_addr(ip_serveur);  
 
+	/* Tentative de connection au serveur*/
 	if (connect(sock, (struct sockaddr *) &serveur, serveur_len) < 0) {
 		perror("Erreur de connection au serveur");
 		exit(1);
@@ -122,14 +118,14 @@ int main(int argc, char ** argv){
 	printf("Vous êtes connecté"); 
 
 		/* 
-			Fonction send : permet d'envoyer des données lors d'une connexion TCP.
-			arg 1 : fd du socket
-			arg 2 : pointeur vers le buffer de données
-			arg 3 : nombre d'octets à envoyer
-			arg 4 : flags, ici 0 
+			La fonction send permet d'envoyer des données au socket TCP connecté.
+			arg 1 : Le file descriptor du socket
+			arg 2 : Le pointeur vers le buffer permettant de stocker les données
+			arg 3 : Le nombre d'octet à envoyer
+			arg 4 : Le flags que l'on fixe à 0 
 		*/
 		
-	/* On envoie la longueur du nom du fichier */
+	/*On envoie la longueur du nom du fichier au serveur*/
 	x = strlen(nom_fichier);
 	if(send(sock, &x, sizeof(int), 0) == -1){
 			perror("send");
@@ -137,40 +133,48 @@ int main(int argc, char ** argv){
 			fclose(fd);
 			exit(1);
 	}
-	printf("Debut envoi du nom de fichier...\n");
+	printf("Début envoi du nom de fichier...\n");
 		
-	/* Envoi du nom du fichier */
+	/*Envoi du nom du fichier au serveur*/
 	nboct = send(sock, nom_fichier, x, 0);
 	if(nboct == -1){
 			perror("send");
 			close(sock);
 			fclose(fd);
 			exit(1);
-	} 
-	printf("Nom fichier envoyé...\n");
-		
+	} 		
 	printf("Envoi du fichier au serveur ...\n");
-	printf("Vous pouvez écrire dans le fichier \n");
 		
-	/* Il faut allouer le buffer d'envoi de données */
+	/*Allocation du buffer permettant de stocker les données qui vont être envoyée */
 	buffer = (char *)calloc(BUF_LEN, sizeof(char));
-		
+	
+	printf("Vous pouvez écrire dans le fichier \n");
+	
+	/* Début de la boucle d'envoi et réception */	
 	while(1) {  
 
 		/* Initialisation du buffer */
 		bzero(buffer, BUF_LEN);
 
-		/* On lis le message entrée par le client sur la console */
-		if(lire(buffer,BUF_LEN) == 1) {
-			perror("Erreur lors de la lecture du message envoyée par le client");
+		/* On lit le message entré par l'utilisateur dans le terminal */
+		if((lire(buffer,BUF_LEN)) == 1) {
+			perror("Erreur lors de la lecture du message envoyée par l'utilisateur");
 			exit(1);
-		}  
+		} 
 
-		/* On envoie le message qui a été écrit par le client */
-		write(sock, buffer, BUF_LEN);
-	} 
+		/* Envoi au serveur le message envoyé par la console */		
+		if((send(sock, buffer, BUF_LEN, 0) == -1)) {
+			perror("Erreur d'envoi de données au serveur");
+			exit(1);
+		}
+		
+		/*Reste à l'écoute du serveur pour recevoir les autres messages du client */
 
+	}/* Fin de la boucle d'envoi et réception */ 
+
+	/* Fermeture de la socket */	
 	close(sock);  
 
 	return 0;
 }
+	
