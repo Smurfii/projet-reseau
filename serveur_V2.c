@@ -11,16 +11,17 @@
 #include <netinet/in.h>
 #include <errno.h>
 
+/* Taille du buffer permettant de stocker et retransmettre les données */
 #define BUF_LEN 65536			
 /* Nombre maximale de personnes pouvant se connecter au serveur en même temps */
 #define MAX_PEOPLE_WAIT 5
 
+/* La fonction decaler permet de repositionner le curseur lors de l'écriture dans un fichier */
 void decaler(int position_curseur, FILE* fichier){
 	
+	/* Initialisation des variables et du curseur */
 	int i=0;
-	
 	fseek(fichier, 0, SEEK_END);
-	
 	int fin=ftell(fichier);
 	
 	fseek(fichier, position_curseur, SEEK_SET);
@@ -29,40 +30,42 @@ void decaler(int position_curseur, FILE* fichier){
 	int buf[size];
 	int caractere = 0;
 	
+	/* Tant que le fichier est non vide, on récupère les caractères entrés et on les stocke */
 	while(!feof(fichier)) {
 		caractere = fgetc(fichier);
 		buf[i] = caractere;
 		i=i+1;
 	}
 	
+	/* Positionnement du curseur */	
 	fseek(fichier, position_curseur, SEEK_SET);
 	fputc('_', fichier);
-	
+
 	for(i=0; i<size; i=i+1) {
 		fputc(buf[i], fichier);
 	}
 
+	/* On replace le curseur pour la prochaine sauvegarde dans le fichier */
 	fseek(fichier, position_curseur, SEEK_SET);
 }
 
 
-/* écrit et sauvegarde dans le fichier */
+/* Ecrit un caractère passé en paramètre dans le fichier */
 void ecrire(char lettre, FILE* fichier, int *position_curseur){
 	
+	/* Positionnement du curseur pour ne pas écraser les données déjà éxistante */
 	decaler(*position_curseur, fichier);
-	
+	/* Sauvegarde du caractère dans le fichier */
 	fputc(lettre, fichier);
-	
+	/* Repositionnement du curseur */
 	*position_curseur = *position_curseur + 1;
 }
 
 
 /* 
-	L'utilisation de la fonction waitpid telle que faite au dessus
-	permet de "libérer" les processus fils quand ils sont dans un état zombie
-	l'option WNOHANG rend la fonction non-bloquante s'il n'y a plus de fils à libérer
-	La fonction renvoie le pid du processus libéré, 
-	-1 s'il n'y a aucun processus à libérer ou en cas d'erreur.
+	La fonction handler permet de libérer les processus fils si ils sont dans un état zombie.
+	La fonction waitpid retourne le pid du processus libéré, et -1 s'il n'y a aucun processus à libérer ou en cas d'erreur.
+	L'option WNOHANG permet de rendre la fonction non-bloquante s'il n'y a plus de fils à libérer.
 */
 
 void handler(int sig) {
@@ -73,20 +76,19 @@ void handler(int sig) {
 
 int main(int argc, char ** argv){
 
-	/* arguments */
+	/* Argument du programme */
 	int port;	
-	char test;
-
+	
 	/* Déclaration des variables pour les sockets */
 	int sock, socket_dialogue;
 	struct sockaddr_in serveur, client;
 	socklen_t serveur_len, client_len;	
 
-	/*Variables de stockage et autre */
+	/*Variables de stockage et autres */
 	char * buffer;
-	int ret, h, nboct, i, position_curseur = 0;
+	int ret, h, nboct, i = 0, position_curseur = 0;
 	struct sigaction act;
-	char * nom_fichier; 
+	char * nom_fichier = NULL; 
 	FILE * fd = NULL;	
 
 	/*Valeurs par défaut des tailles des clients */
@@ -140,7 +142,10 @@ int main(int argc, char ** argv){
 	}
 	printf("Socket lié au port %d...\n", port);	
 
-	/* Mise sur écoute du serveur */
+	/* 
+		Mise sur écoute du serveur 
+		Un maximum de 5 clients pourront demander en même temps une conenction au serveur 
+	*/
 	if(listen(sock, MAX_PEOPLE_WAIT) == -1) {
 		perror("Erreur listen");
 		exit(1);
@@ -149,7 +154,6 @@ int main(int argc, char ** argv){
 	
 
 	/* Accepte une connexion client et stock le client accepté dans client*/	
-
 	while(1) {
 		printf("En attente de la tentative de connexion d'un client sur le port %d...\n", port);	
 
@@ -160,6 +164,7 @@ int main(int argc, char ** argv){
 		
 		printf("Nouveau client, connecte au socket %d depuis %s:%d...\n", socket_dialogue, inet_ntoa(client.sin_addr), htons(client.sin_port));	
 
+		/* Chaque processus fils du serveur gére un client */
 		h = fork();	
 
 		/* Cas d'erreur */
@@ -182,21 +187,15 @@ int main(int argc, char ** argv){
 			/* On a plus besoin du socket en mode d'écoute */
 			close(sock);	
 
-			/* Réception des données en provenance du client 
-			 Fonction recv : permet de recevoir des données du socket de
-	      	                 l'arg 1
-	      	 arg 1 : socket renvoyée par la fonction accept, ici "csfd"
-	      	 arg 2 : pointeur vers le buffer dans lequel les données transmises
-	      	         seront écrites
-	      	 arg 3 : nombre mamximum d'octets à lire depuis la socket
-	      	 arg 4 : flags (voir la page man pour plus de détails). 
-	      	         Nous mettrons les flags à 0 (aucun flag)
-	      	         Rappel sur l'utilisation des flags : 
-	      	             Il faut utiliser l'opérateur '|' entre les flags pour
-	      	             pouvoir les combiner */	
+			/*
+				La fonction recv permet de recevoir des données du socket TCP client.
+	      		arg 1 : socket client (établit via accept)
+	      	 	arg 2 : pointeur vers le buffer dans lequel les données transmises seront sauvegardées
+	      	 	arg 3 : nombre maximum d'octets à lire depuis la socket
+	      	 	arg 4 : flags que l'on fixe à 0
+	      	*/ 		
 
-	      	/* Cette première utilisation de recv va nous permettre de récupérer 
-	      	 la taille du nom du fichier, ensuite nous recevrons le nom */
+	      	/* Récupération de la taille du nom du fichier */
 			if(recv(socket_dialogue, &nboct, sizeof(int), 0) == -1){
 				perror("Erreur de réception des données provenant du client");
 				close(socket_dialogue);
@@ -205,14 +204,18 @@ int main(int argc, char ** argv){
 
 	      	nom_fichier = calloc(nboct + 1, sizeof(char));
 	      
+	      	/* Récupération du nom du fichier envoyé par le client */
 	      	nboct = recv(socket_dialogue, nom_fichier, nboct, 0);
 	      	if(nboct == -1){
 				perror("Erreur de réception des données provenant du client");
 				close(socket_dialogue);
 				exit(1);
 	     	}
+
+	     	/* On place un \0 à la fin du fichier pour bien fixer sa fin */
 	     	nom_fichier[nboct] = '\0';
 			
+			/* Création du fichier sur le serveur en mode lecture et écriture */
 			printf("Création du fichier : %s...\n", nom_fichier);	
 
 			fd = fopen(nom_fichier, "r+");
@@ -222,43 +225,37 @@ int main(int argc, char ** argv){
 					exit(1);
 	     	 }	
 
-	     	 printf("Fichier \"%s\" ouvert...\n", nom_fichier);
-	     	 fflush(stdout);
-	     	 printf("wat ?");
+	     	printf("Fichier \"%s\" ouvert...\n", nom_fichier);
+	     	/* On vide le tampon de sortie et on force l'écriture */
+	     	fflush(stdout);
 
-	     	/* Création du buffer pour stocker les messages envoyer */ 	
+	     	/* Création du buffer pour stocker les messages transmis */ 	
 			buffer = (char *)calloc(BUF_LEN, sizeof(char));	
-			printf("t'aime pas ma boucle ?");
 
 			/* Boucle de réception du fichier */		
 			while(1) {
+				
 				/* On vide le buffer */
 				bzero(buffer, BUF_LEN);	
-
-				printf("buffer initialisé\n");
-				ret = read(socket_dialogue, buffer, BUF_LEN);
+				
+				/*Réception des messages des clients */
+				ret = recv(socket_dialogue, buffer, BUF_LEN, 0);
 				if(ret == -1) {
 					perror("Erreur lors de la réception des données provenant du client");
 					close(socket_dialogue);
 					exit(1);
 				}
-				printf("%s\n", buffer);
-				buffer[nboct+2] = '\0';
-				printf("%s\n", buffer);
 
-				/*i = 0;
-				test = 'c';*/
-				/*fputc(test, fd);*/
-				/*fwrite(buffer, BUF_LEN, 1, fd);*/
-				/*printf("%c\n", test);*/
-				/*ecrire(test, fd, &position_curseur);*/
+				/*Sauvegarde sur le fichier qi se trouve sur le serveur */
 				while(buffer[i] != '\0') {
-					printf("%c\n", buffer[i]);
 					ecrire(buffer[i], fd, &position_curseur);
-					printf("%c\n", buffer[i]);
 					i = i + 1;
 				}
-				printf("hey ! \n");			
+				i = 0;
+
+				/*Emission du message à tous les clients */
+
+				
 			} 	
 
 			fclose(fd); 
@@ -267,7 +264,7 @@ int main(int argc, char ** argv){
 			return 0;
 		}	
 	}	
-	printf("\n");	
+	printf("\n");
 
 	return 0;
 }
