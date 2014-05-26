@@ -124,29 +124,14 @@ int main(int argc, char ** argv){
 
 		/* Initialisation du buffer pour recevoir des données */
 		bzero(buffer, BUF_LEN);
-		
-		/*if(recv(sock, &mes_len, sizeof(char), 0) == -1){
-				perror("Erreur de réception des données provenant du client");
-				close(sock);
-				exit(1);
-	      	}*/
 
 		printf("Le fichier %s contient :\n\n", argv[3]);
 		/* Tant que le serveur n'a pas transmis toutes les données issues du fichier de sauvegarde */	
-		while((ret = recv(sock, buffer, BUF_LEN, 0)) != TAILLE_MAX) {
-			/* Cas d'erreur de lecture sur sock */
-			if(ret == -1) {
-				perror("Erreur de réception lors de la transmission des données\n");
-				exit(1);
-			}
-			
-			/* Si il n'y a pas d'erreur, on affiche au client les données */
-			else {
-				/* Pas besoin de \n car le buffer contient déjà un \n */
-				printf("%s", buffer);
-			}		
+		if(recv(sock, buffer, BUF_LEN, 0) == -1) {
+			perror("Erreur de réception lors de la transmission des données\n");
+			exit(1);					
 		}
-		printf("sortie");
+		printf("%s", buffer);
 		printf("\n");
 			
 		/* Initialisation du buffer pour l'envoi de données */
@@ -159,14 +144,12 @@ int main(int argc, char ** argv){
 			perror("Erreur lors de la lecture du message envoyée par l'utilisateur");
 			exit(1);
 		} 
-		printf("lecture ok\n");
 		
 		/* Envoi au serveur le message envoyé par la console */		
 		if((send(sock, buffer, BUF_LEN, 0) == -1)) {
 			perror("Erreur d'envoi de données au serveur");
 			exit(1);
 		}	
-		printf("envoi ok\n");
 
 	}/* Fin de la boucle d'envoi et réception */ 
 
