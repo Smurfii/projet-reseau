@@ -1,0 +1,10 @@
+all: client
+
+client_main.o: client_main.c fonctions_client.h	
+	  gcc -c client_main.c
+
+fonctions_client.o: fonctions_client.c
+	  gcc -c fonctions_client.c
+
+client: client_main.o fonctions_client.o
+	  gcc -g -o client client_main.o fonctions_client.o	
