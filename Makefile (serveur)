@@ -1,0 +1,10 @@
+all: serveur
+
+fonctions_serveur.o: fonctions_serveur.c fonctions_serveur.h	
+	  gcc -c fonctions_serveur.c
+
+serveur_main.o: serveur_main.c 
+		gcc -c serveur_main.c
+
+serveur: fonctions_serveur.o serveur_main.o
+	  gcc -o serveur fonctions_serveur.o serveur_main.o	
