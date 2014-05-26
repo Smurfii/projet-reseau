@@ -1,0 +1,52 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{listings}
+\title{Projet informatique:
+Editeur de texte collaboratif}
+\author{Hallermeyer Guillaume, Bouvattier Foucauld, Durchon Hugo, Paris Edouard}
+\date{Rapport final}
+
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\section{Introduction}
+    Le projet informatique 2014 consiste à l'implémentation d'un éditeur de texte collaboratif. Il s'agit d'un logiciel permettant de créer et modifier un document texte de façon partagée entre plusieurs utilisateurs.
+Par ailleurs, l'éditeur de texte permet de rejoindre un document partagé déjà existant et il doit permettre d'assurer l'intégrité des documents entre tous les utilisateurs.
+En outre, le projet se découpe en plusieurs modules séparés qui devront être assemblés afin de créer une application fonctionnelle.
+\section{Les choix techniques}
+\subsection{Application synchrone}
+\subsection{Le langage C}
+\subsection{L'Utilisation de GTK}
+\subsection{Un serveur de diffusion TCP}
+\section{La décomposition en module}
+\section{La partie Réseau}
+\subsection{Le serveur TCP}
+\subsection{Le client TCP}
+\subsection{L'interaction serveur et clients}
+\section{L'éditeur de texte}
+\subsection{L'Accès et la sauvegarde des fichiers}
+\subsection{La gestion des curseurs}
+\section{L'interface}
+\subsection{La fenêtre graphique}
+\subsection{Les boutons de contrôle}
+\section{La gestion des conflits}
+\subsection{Problèmes liés à l'interaction de plusieurs utilisateurs}
+\subsection{Utilisation des sémaphores}
+\section{Problèmes rencontrés}
+\subsection{Familiarisation avec GTK}
+\subsection{La gestion des données via les buffers}
+\subsection{Les comportements implicites des fonctions en C et les curseurs de l'éditeur de texte}
+\subsection{Retour sur le choix techniques effectués}
+\subsection{Conclusion}
+
+\end{document}
+%pour compiler le document afin de le visualiser en Latex, dans un terminal taper :
+% pdflatex ledocument.tex
+%Si vous tapez ls vous verrez que de nouveaux fichiers sont apparus : outre le document.tex, il y a un document.aux, un document.log et un document.pdf. C'est le dernier qui nous intéresse, car il contient le résultat graphique de la compilation.
+%
+
