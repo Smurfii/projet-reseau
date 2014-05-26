@@ -112,7 +112,9 @@ int main(int argc, char ** argv){
 
 	/*Variables de stockage et autres */
 	char * buffer;
-	int ret, h, nboct, i = 0, position_curseur = 0;
+	char chaine[TAILLE_MAX];
+	int ret, h, nboct, i = 0, position_curseur = 0, indice = 0, j = 0;
+	int chaine_size = 0;
 	struct sigaction act;
 	char * nom_fichier = NULL; 
 	FILE * fd = NULL;	
@@ -252,7 +254,7 @@ int main(int argc, char ** argv){
 			buffer = (char *)calloc(BUF_LEN, sizeof(char));	
 
 			/* Boucle de réception du fichier */		
-			while(1) {
+			while(1) 	{
 
 				/* En fonction de ce qu'il y aura dans le fichier, le serveur n'aura pas le même comportement vis-à-vis des clients*/
 								
@@ -275,26 +277,36 @@ int main(int argc, char ** argv){
 					afficher(fd);
 
 					/* On vide le buffer pour stocker les données sauvegarder dans le fichier */
-					bzero(buffer, BUF_LEN);	
+					bzero(buffer, BUF_LEN);
+					bzero(chaine, TAILLE_MAX);	
 
 					/* 
 						Pour mesurer la taille du fichier, on a déplacé le curseur à la fin.
 						On le repositionne au début pour pouvoir lire dans le fichier. 
 					*/  	
 					fseek(fd, 0, SEEK_SET);
+					
 					/* Récupération des données contenues dans le fichier et stockage dans le buffer */
-					while(fgets(buffer, BUF_LEN, fd) != NULL) {
+					while(fgets(chaine, BUF_LEN, fd) != '\0') {
 						
-						printf("%s", buffer);
-						/* Retransmission à tous les clients */
+						chaine_size = strlen(chaine);
 						
-						if(send(socket_dialogue, buffer, BUF_LEN, 0) == -1) {
-							perror("Erreur lors de la retransmission du message aux clients");
-							exit(1);
-						}
-						printf("envoyé\n");
+						for (i = 0; i < chaine_size; ++i)
+							{
+								buffer[i+indice] = chaine[i];
+							}
+						
+						indice = indice + chaine_size;
+						bzero(chaine, TAILLE_MAX);
+						chaine_size = 0;	
 					}
-									
+					indice = 0;
+
+					if(send(socket_dialogue, buffer, BUF_LEN, 0) == -1) {
+						perror("Erreur lors de la retransmission du message aux clients");
+						exit(1);
+					}	
+
 					/* On vide le buffer pour stocker les données envoyées par les clients */
 					bzero(buffer, BUF_LEN);
 
@@ -305,27 +317,23 @@ int main(int argc, char ** argv){
 						close(socket_dialogue);
 						exit(1);
 					}
-					printf("réception ok");
-					printf("%s\n", buffer);
 
 					/*Sauvegarde sur le fichier qui se trouve sur le serveur */
-					while(buffer[i] != '\0') {
-						ecrire(buffer[i], fd, &position_curseur);
-						i = i + 1;
+					while(buffer[j] != '\0') {
+						ecrire(buffer[j], fd, &position_curseur);
+						j = j + 1;
 					}
-					i = 0;
+					j = 0;
 					printf("données sauvegardées dans le fichier\n");
-				}	
+		
+				}
 			}	 	
 
-			fclose(fd); 
-			close(socket_dialogue); 
-			
-			return 0;
+			fclose(fd);
+			close(socket_dialogue); 			
 		}	
 	}	
 	printf("\n");
 
 	return 0;
 }
-
