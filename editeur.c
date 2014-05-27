@@ -29,7 +29,7 @@ void decaler(int position_curseur, FILE* fichier){
 	while(!feof(fichier))
 	{
 		caractere = fgetc(fichier);
-		printf("%d", caractere);
+		//printf("%d", caractere);
 		buf[i] = caractere;
 		i=i+1;
 	}
@@ -39,6 +39,32 @@ void decaler(int position_curseur, FILE* fichier){
 	{
 		fputc(buf[i], fichier);
 	}
+	fseek(fichier, position_curseur, SEEK_SET);
+}
+
+// fonction qui décale tous les caractères d'un fichier de 1 à partir de la position du curseur et écrit "_" à la position initiale du curseur
+void supprimer(int position_curseur, FILE* fichier){
+	
+	position_curseur = position_curseur-1;
+	int i=0;
+	fseek(fichier, 0, SEEK_END);
+	int fin=ftell(fichier);
+	fseek(fichier, position_curseur, SEEK_SET);
+	int size = fin - position_curseur;
+	int buf[size];
+	int caractere = 0;
+	while(!feof(fichier))
+	{
+		caractere = fgetc(fichier);
+		buf[i] = caractere;
+		i=i+1;
+	}
+	fseek(fichier, position_curseur-1, SEEK_SET);
+	for(i=0; i<size; i=i+1)
+	{
+		fputc(buf[i], fichier);
+	}
+	fputc(' ', fichier); //ceci pose un problème car a chaque fois qu'on supprime, on met un espace a la fin du fichier...
 	fseek(fichier, position_curseur, SEEK_SET);
 }
 
@@ -69,12 +95,7 @@ void ecrire(char lettre, FILE* fichier, int *position_curseur){
 	*position_curseur = *position_curseur + 1;
 }
 
-void supprimer(FILE* fichier, int *position_curseur)
-{
-
-}
-
-void coucou(char* fichier){
+void enregistre_curseur(char* fichier){
 	int position_curseur;
 	char nom_fichier[TAILLE_MAX];
 	strcpy(nom_fichier, fichier);
@@ -94,18 +115,33 @@ void coucou(char* fichier){
 	printf("écrivez votre texte\n");
 	while(lettre!='$')
 	{
-		if(lettre=='$')
-			{break;}
-		lettre = getchar();
-		ecrire(lettre, fd, &position_curseur);
+		switch(lettre)
+		{
+			case '$' : 
+
+				break;
+			case '*' : 
+				lettre = getchar();
+				supprimer(position_curseur, fd);
+				supprimer(position_curseur, fd);
+				position_curseur=position_curseur-2;
+				break;
+			default :
+				lettre = getchar();
+				ecrire(lettre, fd, &position_curseur);
+		}
+
 	}
+	supprimer(position_curseur, fd);
+	supprimer(position_curseur, fd);
 	fclose(fd);
+	position_curseur=position_curseur-2;
 	fprintf(fdc, "%d", position_curseur);
 }
 
 int main(int argc, char **argv)
 {
-	coucou(argv[1]);
+	enregistre_curseur(argv[1]);
     if(argc != 2)
     {   
         perror("mauvais nombre d'arguments");
