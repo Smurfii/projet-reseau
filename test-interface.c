@@ -9,11 +9,11 @@ int main(int argc,char **argv)
     gtk_init(&argc,&argv);
  
     pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(pWindow), "Les labels");
+    gtk_window_set_title(GTK_WINDOW(pWindow), "Editeur de texte collaboratif");
     gtk_window_set_default_size(GTK_WINDOW(pWindow), 320, 200);
  
     /* Creation du label */
-    pLabel=gtk_label_new("Hello World!");
+    pLabel=gtk_label_new("Bienvenue sur notre éditeur de texte collaboratif");
  
     /* On ajoute le label a l'intérieur de la fenêtre */
     gtk_container_add(GTK_CONTAINER(pWindow), pLabel);
