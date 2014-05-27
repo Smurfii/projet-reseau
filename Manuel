@@ -1,0 +1,31 @@
+Manuel d'utilisation
+
+Accéder au serveur
+-Ouvrir le terminal
+-Aller dans le dossier contenant l’exécutable serveur
+-Taper la commande
+	./serveur « port_serveur »
+	exemple :
+	./serveur 5000
+
+Se connecter au serveur
+-Ouvrir le terminal
+-Aller dans le dossier contenant l’exécutable client
+-Taper la commande
+	./client « adresse_ip_serveur » « port_serveur » « fichier_a_modifier »
+	exemple :
+	on souhaite écrire dans le fichier « coucou » :
+	./client 127.0.0.1 5000 coucou
+
+Modifier le fichier
+-Lancer le serveur
+-Se connecter au serveur
+-Taper le texte désiré avec « entrée », celui-ci est envoyé au serveur qui modifie le fichier
+
+Editeur hors connexion
+lancer l'executable suivi du fichier a modifier sans extension
+le fichier doit deja etre créé
+  exemple : ./editeur test
+pour finir l'écriture écrire "$"
+pour supprimer écrire "*"
+sinon, entrez votre texte suivi de "entrée"
