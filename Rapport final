@@ -5,7 +5,6 @@
 \usepackage{listings}
 \title{Projet informatique:
 Editeur de texte collaboratif}
-\author{Hallermeyer Guillaume, Bouvattier Foucauld, Durchon Hugo, Paris Edouard}
 \date{Rapport final}
 
 \begin{document}
